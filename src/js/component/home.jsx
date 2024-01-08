@@ -6,16 +6,23 @@ import React, { useState } from "react";
 const Home = () => {
 
 	const [add, setAdd] = useState("");
-	const [list, setList] = useState([]);
+	const [list, setList] = useState(JSON.parse(localStorage.getItem("myList")) || []);
 	const [hoverIndex, setHoverIndex] = useState("");
-	function keyIntro(e) {
+	const [remainingItems, setRemainingItems] = useState(list.length);
 
+	
+	function keyIntro(e) {
+		
 		// e.preventDefault();
 		// console.log(e.keyCode);
+		let aux = []
 		if (e.keyCode === 13) {
-			setList(list.concat(add))
-			setAdd("")
-
+			aux = list.concat(add);
+			setList(list.concat(add));
+			setAdd("");
+			setRemainingItems(aux.length);
+			
+			localStorage.setItem('myList', JSON.stringify(aux));
 		}
 
 	};
@@ -24,6 +31,11 @@ const Home = () => {
 		const updatedList = [...list];
 		updatedList.splice(index, 1);
 		setList(updatedList);
+		localStorage.removeItem("myList");
+		localStorage.setItem('myList', JSON.stringify(updatedList));
+		setRemainingItems(updatedList.length);
+
+
 	}
 
 
@@ -31,19 +43,20 @@ const Home = () => {
 
 
 	return (
-		<div className="text-center container mt-5">
+		<div className="text-center container mt-5 text-bg-secondary p-3">
 
 			<div className="mb-3 ">
+				<h1>TODOS</h1>
 
-				<input type="text" className="form-control" value={add} placeholder="add a element" onChange={(e) => setAdd(e.target.value)} onKeyDown={keyIntro} />
+				<input type="text" className="form-control  " value={add} placeholder="add a element" onChange={(e) => setAdd(e.target.value)} onKeyDown={keyIntro} />
 
 			</div>
 
 			<div>
-				<ul>
-					{list.map((item, index) =>
+				<ul className="list-group ">
+					{list.length > 0? list.map((item, index) =>
 						<li
-							className="d-flex justify-content-between"
+							className="d-flex justify-content-between list-group-item text-bg-secondary"
 							key={index}
 							onMouseEnter={() => setHoverIndex(index)}
 							onMouseLeave={() => setHoverIndex(null)}
@@ -53,8 +66,9 @@ const Home = () => {
 								<button onClick={() => removeItem(index)}>X</button>
 							)}
 						</li>
-					)}
+					) : "no hay tareas"}
 				</ul>
+				<p>{remainingItems} items remaining</p>
 			</div>
 
 		</div>
